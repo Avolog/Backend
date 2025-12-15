@@ -1,3 +1,28 @@
+server:
+  port: 8080
+
 spring:
   application:
     name: java
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASS}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+# 변경 필요!
+app:
+  google:
+    client-id: ${GOOGLE_CLIENT_ID}
+    client-secret: ${GOOGLE_CLIENT_SECRET}
+    redirect-uri: ${GOOGLE_REDIRECT_URI}   # 프론트 callback URL과 "완전히 동일"
+  jwt:
+    issuer: ${JWT_ISSUER:https://api.avolog.com}
+    audience: ${JWT_AUDIENCE:avolog}
+    ttl-seconds: ${JWT_TTL_SECONDS:3600}
+    private-key-pem: ${JWT_PRIVATE_KEY_PEM}
+    public-key-pem: ${JWT_PUBLIC_KEY_PEM}
+    kid: ${JWT_KID:usersvc-key-1}
