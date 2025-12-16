@@ -34,6 +34,12 @@ public class TodoController {
         this.todoService = todoService;
     }
 
+
+    @GetMapping("/health")
+    public String health() {
+            return "ok";
+        }
+
     @PostMapping
     @Operation(summary = "Create todo", description = "Create a personal or group todo; routine-linked if routineId provided")
     public ResponseEntity<TodoResponse> create(@Valid @RequestBody CreateTodoRequest request) {
