@@ -1,6 +1,7 @@
 package avolog.todo.service;
 
 import avolog.todo.domain.PeriodType;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.temporal.WeekFields;
@@ -18,7 +19,7 @@ public class PeriodKeyCalculator {
     }
 
     private String weeklyKey(LocalDate date, Integer weekStartDay) {
-        int startDay = weekStartDay == null ? 1 : weekStartDay;
+        DayOfWeek startDay = toDayOfWeek(weekStartDay);
         WeekFields wf = WeekFields.of(startDay, 4);
         int week = date.get(wf.weekOfWeekBasedYear());
         int year = date.get(wf.weekBasedYear());
@@ -32,5 +33,13 @@ public class PeriodKeyCalculator {
                 : LocalDate.of(date.minusMonths(1).getYear(), date.minusMonths(1).getMonth(), day);
         YearMonth ym = YearMonth.of(anchor.getYear(), anchor.getMonth());
         return String.format("%d-%02d", ym.getYear(), ym.getMonthValue());
+    }
+
+    private DayOfWeek toDayOfWeek(Integer weekStartDay) {
+        int value = weekStartDay == null ? 1 : weekStartDay;
+        if (value < 1 || value > 7) {
+            throw new IllegalArgumentException("weekStartDay must be between 1 (Monday) and 7 (Sunday)");
+        }
+        return DayOfWeek.of(value);
     }
 }
