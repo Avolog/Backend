@@ -1,3 +1,20 @@
 spring:
   application:
-    name: java
+    name: groups-service
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/groups_db}
+    username: ${DB_USERNAME:groups}
+    password: ${DB_PASSWORD:groups}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc.lob.non_contextual_creation: true
+        format_sql: true
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+server:
+  port: ${PORT:8080}
