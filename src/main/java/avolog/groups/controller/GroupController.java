@@ -13,25 +13,26 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/groups")
 @RequiredArgsConstructor
-@Tag(name = "Groups", description = "그룹 생성/가입/설정 API")
+@Tag(name = "Groups", description = "그룹 생성/가입 관련 API")
 public class GroupController {
 
     private final GroupService groupService;
 
-    @Operation(summary = "그룹 생성", description = "이름, 설명, 가입 비밀번호로 그룹을 생성하고 요청자를 OWNER로 등록합니다.")
+    @Operation(summary = "그룹 생성", description = "이름, 설명, 가입비밀번호로 그룹을 생성하고 요청자가 OWNER로 등록됩니다.")
     @PostMapping
     public ResponseEntity<CreateGroupResponse> createGroup(
             @Valid @RequestBody CreateGroupRequest request,
@@ -41,7 +42,7 @@ public class GroupController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @Operation(summary = "그룹 가입 (이름+비밀번호)", description = "groupName과 joinPassword로 그룹을 찾아 멤버로 가입합니다.")
+    @Operation(summary = "그룹 가입(이름+비밀번호)", description = "groupName과 joinPassword로 그룹을 찾아 멤버로 가입합니다.")
     @PostMapping("/join")
     public ResponseEntity<JoinGroupResponse> joinGroup(
             @Valid @RequestBody JoinGroupRequest request,
@@ -51,7 +52,7 @@ public class GroupController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "그룹 가입 비밀번호 변경", description = "OWNER 또는 MANAGER만 실행 가능하며 비밀번호 해시를 갱신합니다.")
+    @Operation(summary = "그룹 가입비밀번호 변경", description = "OWNER 또는 MANAGER 권한일 때 비밀번호를 최신화합니다.")
     @PatchMapping("/{groupId}/join-password")
     public ResponseEntity<Void> updateJoinPassword(
             @Parameter(description = "그룹 ID") @PathVariable UUID groupId,
@@ -60,5 +61,11 @@ public class GroupController {
     ) {
         groupService.updateJoinPassword(groupId, userId, request);
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Health check", description = "Simple endpoint to confirm the groups service is running.")
+    @GetMapping("/health")
+    public ResponseEntity<String> health() {
+        return ResponseEntity.ok("ok");
     }
 }
