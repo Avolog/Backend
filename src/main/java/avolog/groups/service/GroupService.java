@@ -8,12 +8,6 @@ import avolog.groups.dto.InviteResponse;
 import avolog.groups.dto.JoinGroupRequest;
 import avolog.groups.dto.JoinGroupResponse;
 import avolog.groups.dto.UpdateJoinPasswordRequest;
-import avolog.groups.event.GroupEvent;
-import avolog.groups.event.GroupEventPublisher;
-import avolog.groups.service.GroupCreatedEvent;
-import avolog.groups.service.GroupInviteAcceptedEvent;
-import avolog.groups.service.GroupInviteCreatedEvent;
-import avolog.groups.service.GroupInviteRevokedEvent;
 import avolog.groups.model.Group;
 import avolog.groups.model.GroupInvite;
 import avolog.groups.model.GroupMember;
@@ -42,7 +36,6 @@ public class GroupService {
     private final GroupMemberRepository memberRepository;
     private final GroupInviteRepository inviteRepository;
     private final PasswordEncoder passwordEncoder;
-    private final GroupEventPublisher eventPublisher;
 
     @Transactional
     public CreateGroupResponse createGroup(CreateGroupRequest request, UUID userId) {
@@ -67,14 +60,6 @@ public class GroupService {
                 .joinedAt(now)
                 .build();
         memberRepository.save(owner);
-
-        eventPublisher.publish(GroupEvent.builder()
-                .eventId(UUID.randomUUID())
-                .eventType("GroupCreated")
-                .occurredAt(now)
-                .producer("groups-service")
-                .data(new GroupCreatedEvent(group.getId(), group.getName(), userId, now))
-                .build());
 
         return new CreateGroupResponse(group.getId(), group.getName(), group.getDescription(),
                 group.getOwnerUserId(), group.getCreatedAt());
@@ -145,15 +130,6 @@ public class GroupService {
                 .build();
         inviteRepository.save(invite);
 
-        eventPublisher.publish(GroupEvent.builder()
-                .eventId(UUID.randomUUID())
-                .eventType("GroupInviteCreated")
-                .occurredAt(invite.getCreatedAt())
-                .producer("groups-service")
-                .data(new GroupInviteCreatedEvent(invite.getId(), group.getId(), inviter.getUserId(),
-                        invite.getTargetUserId(), invite.getRole(), invite.getExpiresAt()))
-                .build());
-
         return new InviteResponse(invite.getId(), invite.getGroupId(), group.getName(),
                 invite.getInviterUserId(), invite.getTargetUserId(), invite.getRole(),
                 invite.getStatus(), invite.getExpiresAt(), invite.getCreatedAt());
@@ -207,15 +183,6 @@ public class GroupService {
         member.setJoinedAt(Instant.now());
         memberRepository.save(member);
 
-        eventPublisher.publish(GroupEvent.builder()
-                .eventId(UUID.randomUUID())
-                .eventType("GroupInviteAccepted")
-                .occurredAt(invite.getAcceptedAt())
-                .producer("groups-service")
-                .data(new GroupInviteAcceptedEvent(invite.getId(), invite.getGroupId(), userId,
-                        member.getRole(), invite.getAcceptedAt()))
-                .build());
-
         return new AcceptInviteResponse(invite.getGroupId(), userId, member.getRole(), invite.getAcceptedAt());
     }
 
@@ -229,14 +196,6 @@ public class GroupService {
         }
         invite.setStatus(InviteStatus.REVOKED);
         inviteRepository.save(invite);
-
-        eventPublisher.publish(GroupEvent.builder()
-                .eventId(UUID.randomUUID())
-                .eventType("GroupInviteRevoked")
-                .occurredAt(invite.getUpdatedAt())
-                .producer("groups-service")
-                .data(new GroupInviteRevokedEvent(invite.getId(), invite.getGroupId(), requesterId, Instant.now()))
-                .build());
     }
 
     private GroupMember requireManagerOrOwner(UUID groupId, UUID userId) {
