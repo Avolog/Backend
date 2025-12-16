@@ -2,12 +2,12 @@ spring:
   application:
     name: todo-service
   datasource:
-    url: ${TODO_DB_URL:jdbc:postgresql://localhost:5432/todo_db}
+    url: jdbc:postgresql://${DB_HOST}:5432/todo_db
     username: ${TODO_DB_USER:todo}
     password: ${TODO_DB_PASSWORD:todo}
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
     properties:
       hibernate:
         jdbc:
@@ -21,14 +21,14 @@ logging:
     root: INFO
 
 aws:
-  region: ${AWS_REGION:ap-northeast-2}
+  region: ${REGION:ap-northeast-2}
 
 todo:
   events:
     sns:
       enabled: ${TODO_EVENTS_SNS_ENABLED:false}
-      topic-arn: ${SNS_TODO_TOPIC_ARN:}
+      topic-arn: ${SNS_TODO_TOPIC_ARN}
   queues:
     activity:
-      queue-url: ${SQS_ACTIVITY_QUEUE_URL:}
-      dlq-url: ${SQS_ACTIVITY_DLQ_URL:}
+      queue-url: ${SQS_ACTIVITY_QUEUE_URL}
+      dlq-url: ${SQS_ACTIVITY_DLQ_URL}
