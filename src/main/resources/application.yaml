@@ -7,14 +7,15 @@ spring:
     password: ${TODO_DB_PASSWORD:todo}
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
     properties:
       hibernate:
         jdbc:
           time_zone: UTC
   sql:
     init:
-      mode: never
+      mode: always
+      schema-locations: classpath:schema.sql
 
 logging:
   level:

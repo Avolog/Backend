@@ -15,7 +15,8 @@ WORKDIR /app
 # Create non-root user
 RUN groupadd --system spring && useradd --system --gid spring spring
 
-COPY --from=builder /workspace/build/libs/java-0.0.1-SNAPSHOT.jar app.jar
+# Place jar at /app.jar to match ENTRYPOINT
+COPY --from=builder /workspace/build/libs/java-0.0.1-SNAPSHOT.jar /app.jar
 
 USER spring
 EXPOSE 8080
