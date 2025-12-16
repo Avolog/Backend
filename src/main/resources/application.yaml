@@ -2,7 +2,7 @@ spring:
   application:
     name: groups-service
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/groups_db}
+    url: jdbc:postgresql://${DB_HOST}:5432/todo_db/groups_db
     username: ${DB_USERNAME:groups}
     password: ${DB_PASSWORD:groups}
     driver-class-name: org.postgresql.Driver
@@ -16,5 +16,7 @@ spring:
         format_sql: true
   jackson:
     property-naming-strategy: SNAKE_CASE
+  flyway:
+    baseline-on-migrate: true
 server:
   port: ${PORT:8080}
