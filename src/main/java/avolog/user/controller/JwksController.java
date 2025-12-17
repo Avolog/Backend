@@ -1,8 +1,14 @@
 package avolog.user.controller;
 
-import com.nimbusds.jose.jwk.*;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.jwk.JWK;
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.KeyUse;
+import com.nimbusds.jose.jwk.RSAKey;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.security.KeyFactory;
 import java.security.interfaces.RSAPublicKey;
@@ -17,14 +23,14 @@ public class JwksController {
     @Value("${app.jwt.public-key-pem}") private String publicKeyPem;
     @Value("${app.jwt.kid}") private String kid;
 
-    @GetMapping("/jwks.json")
+    @GetMapping(path = "/jwks.json", produces = "application/json")
     public Map<String, Object> jwks() {
         RSAPublicKey pub = loadPublicKey(publicKeyPem);
 
         JWK jwk = new RSAKey.Builder(pub)
-                .keyID(kid)
-                .algorithm(com.nimbusds.jose.JWSAlgorithm.RS256)
                 .keyUse(KeyUse.SIGNATURE)
+                .algorithm(JWSAlgorithm.RS256)
+                .keyID(kid)
                 .build();
 
         return new JWKSet(jwk).toJSONObject();
